@@ -5,7 +5,7 @@ namespace DI\Bridge\Silex\Test;
 use DI\Bridge\Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 
-class ApplicationTest extends \PHPUnit_Framework_TestCase
+class FunctionalTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @test

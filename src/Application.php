@@ -5,8 +5,7 @@ namespace DI\Bridge\Silex;
 use DI\Bridge\Silex\Controller\ControllerResolver;
 use DI\Container;
 use DI\ContainerBuilder;
-use DI\Scope;
-use InvalidArgumentException;
+use Pimple;
 
 /**
  * Replacement for the Silex Application class to use PHP-DI instead of Pimple.
@@ -20,77 +19,65 @@ class Application extends \Silex\Application
      */
     private $container;
 
-    public function __construct()
+    /**
+     * @var Pimple
+     */
+    private $pimple;
+
+    /**
+     * @param Container|null $container You can optionally provide your own container.
+     */
+    public function __construct(Container $container = null)
     {
-        $this->container = ContainerBuilder::buildDevContainer();
+        $this->container = $container ?: ContainerBuilder::buildDevContainer();
+        $this->pimple = new Pimple();
 
         parent::__construct();
 
-        // Override the controller resolver
-        $this->container->set('resolver', function () {
+        // Override the controller resolver with ours
+        $this->pimple['resolver'] = function () {
             return new ControllerResolver($this->container);
-        });
+        };
     }
 
     public function offsetGet($id)
     {
-        return $this->container->get($id);
+        if ($this->container->has($id)) {
+            return $this->container->get($id);
+        }
+        return $this->pimple[$id];
     }
 
     public function offsetExists($id)
     {
-        return $this->container->has($id);
+        if ($this->container->has($id)) {
+            return true;
+        }
+        return isset($this->pimple[$id]);
     }
 
     public function offsetSet($id, $value)
     {
-        if ($value instanceof \Closure) {
-            $value = \DI\factory($value)
-                ->scope(Scope::SINGLETON());
-        }
-
-        $this->container->set($id, $value);
+        $this->pimple[$id] = $value;
     }
 
     public function offsetUnset($id)
     {
-        // TODO
-        throw new \LogicException('Unsupported operation');
-    }
-
-    public static function share($callable)
-    {
-        if (!is_object($callable) || !method_exists($callable, '__invoke')) {
-            throw new InvalidArgumentException('Service definition is not a Closure or invokable object.');
-        }
-
-        return \DI\factory($callable);
-    }
-
-    public static function protect($callable)
-    {
-        if (!is_object($callable) || !method_exists($callable, '__invoke')) {
-            throw new InvalidArgumentException('Callable is not a Closure or invokable object.');
-        }
-
-        return \DI\value($callable);
+        unset($this->pimple[$id]);
     }
 
     public function raw($id)
     {
-        // TODO
-        throw new \LogicException('Unsupported operation');
+        return $this->pimple->raw($id);
     }
 
     public function extend($id, $callable)
     {
-        // TODO
-        throw new \LogicException('Unsupported operation');
+        $this->pimple->extend($id, $callable);
     }
 
     public function keys()
     {
-        // TODO
         throw new \LogicException('Unsupported operation');
     }
 
