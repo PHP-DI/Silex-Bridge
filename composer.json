@@ -1,5 +1,6 @@
 {
-    "name": "mnapoli/php-di-silex",
+    "name": "php-di/silex-bridge",
+    "description": "PHP-DI integration in Silex",
     "license": "MIT",
     "type": "library",
     "autoload": {
