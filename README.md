@@ -5,8 +5,8 @@
 
 ## Installation
 
-```php
-composer require php-di/silex-bridge
+```
+$ composer require php-di/silex-bridge
 ```
 
 ## Usage
