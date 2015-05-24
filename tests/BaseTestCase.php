@@ -3,14 +3,14 @@
 namespace DI\Bridge\Silex\Test;
 
 use DI\Bridge\Silex\Application;
-use DI\Container;
+use DI\ContainerBuilder;
 use PHPUnit_Framework_TestCase;
 
 class BaseTestCase extends PHPUnit_Framework_TestCase
 {
-    protected function createApplication(Container $container = null)
+    protected function createApplication(ContainerBuilder $builder = null)
     {
-        $app = new Application($container);
+        $app = new Application($builder);
 
         $app['debug'] = true;
         $app['exception_handler']->disable();

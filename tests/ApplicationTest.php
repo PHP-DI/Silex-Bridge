@@ -10,12 +10,16 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function can_provide_our_own_container()
+    public function can_take_our_own_container_builder()
     {
-        $container = ContainerBuilder::buildDevContainer();
+        $builder = new ContainerBuilder;
+        $builder->addDefinitions([
+            'foo' => 'bar',
+        ]);
 
-        $app = new Application($container);
+        $app = new Application($builder);
 
-        $this->assertSame($container, $app->getContainer());
+        $container = $app->getContainer();
+        $this->assertEquals('bar', $container->get('foo'));
     }
 }

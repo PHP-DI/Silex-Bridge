@@ -5,6 +5,7 @@ namespace DI\Bridge\Silex;
 use DI\Bridge\Silex\Controller\ControllerResolver;
 use DI\Container;
 use DI\ContainerBuilder;
+use Interop\Container\Pimple\PimpleInterop;
 use Pimple;
 
 /**
@@ -25,13 +26,16 @@ class Application extends \Silex\Application
     private $pimple;
 
     /**
-     * @param Container|null $container You can optionally provide your own container.
-     * @param array          $values
+     * @param ContainerBuilder|null $containerBuilder You can optionally provide your preconfigured container builder.
+     * @param array                 $values
      */
-    public function __construct(Container $container = null, array $values = [])
+    public function __construct(ContainerBuilder $containerBuilder = null, array $values = [])
     {
-        $this->container = $container ?: ContainerBuilder::buildDevContainer();
-        $this->pimple = new Pimple();
+        $this->pimple = new PimpleInterop();
+
+        $containerBuilder = $containerBuilder ?: new ContainerBuilder();
+        $containerBuilder->wrapContainer($this->pimple);
+        $this->container = $containerBuilder->build();
 
         parent::__construct($values);
 

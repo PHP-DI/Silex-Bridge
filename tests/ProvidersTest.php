@@ -13,16 +13,19 @@ class ProvidersTest extends BaseTestCase
      */
     public function test_twig()
     {
-        $container = ContainerBuilder::buildDevContainer();
-        $container->set('Twig_Environment', \DI\get('twig'));
-        $app = $this->createApplication($container);
+        $builder = new ContainerBuilder;
+        $builder->addDefinitions([
+            // Create an alias so that we can inject with the type-hint
+            'Twig_Environment' => \DI\get('twig'),
+        ]);
+        $app = $this->createApplication($builder);
 
         $app->register(new TwigServiceProvider(), [
-            'twig.path' => __DIR__ . '/Fixtures/views',
+            'twig.path' => __DIR__ . '/Fixture/views',
         ]);
 
         $app->get('/', function (\Twig_Environment $twig) {
-            return $twig->render('foo');
+            return $twig->render('foo.twig');
         });
 
         $response = $app->handle(Request::create('/'));
