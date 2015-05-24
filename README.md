@@ -71,3 +71,36 @@ $containerBuilder->addDefinitions('config.php');
 
 $app = new DI\Bridge\Silex\Application($containerBuilder);
 ```
+
+## Silex service providers
+
+Silex offers several "service providers" to pre-configure some 3rd party libraries, for example Twig or Doctrine. You can still use those service providers with this integration (even though in bigger projects you might want to configure everything yourself).
+
+Here is the example of the [TwigServiceProvider](http://silex.sensiolabs.org/doc/providers/twig.html):
+
+```php
+$app->register(new Silex\Provider\TwigServiceProvider(), [
+    'twig.path' => __DIR__ . '/views',
+]);
+
+$app->get('/', function () use ($app) {
+    return $app['twig']->render('home.twig');
+});
+```
+
+Since Twig services are registered using a custom name instead of the actual class name (e.g. `twig` instead of the `Twig_Environment` class name), you cannot inject such dependencies into closures. If you want to inject in controller closures, you can alias entries with PHP-DI:
+
+```php
+$builder = new ContainerBuilder();
+
+$builder->addDefinitions([
+    'Twig_Environment' => \DI\get('twig'), // alias
+]);
+
+// ...
+
+// Twig can now be injected in closures:
+$app->post('/', function (Twig_Environment $twig) {
+    return $twig->render('home.twig');
+});
+```
