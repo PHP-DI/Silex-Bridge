@@ -1,5 +1,8 @@
 # PHP-DI integration with Silex
 
+[![Build Status](https://travis-ci.org/PHP-DI/Silex-Bridge.svg?branch=master)](https://travis-ci.org/PHP-DI/Silex-Bridge)
+[![Coverage Status](https://coveralls.io/repos/PHP-DI/Silex-Bridge/badge.svg)](https://coveralls.io/r/PHP-DI/Silex-Bridge)
+
 ## Installation
 
 ```php
