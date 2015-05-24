@@ -2,6 +2,7 @@
 
 namespace DI\Bridge\Silex;
 
+use DI\Bridge\Silex\Container\CompositeContainer;
 use DI\Bridge\Silex\Controller\ControllerResolver;
 use DI\Container;
 use DI\ContainerBuilder;
@@ -17,9 +18,14 @@ use Pimple;
 class Application extends \Silex\Application
 {
     /**
+     * @var CompositeContainer
+     */
+    private $rootContainer;
+
+    /**
      * @var Container
      */
-    private $container;
+    private $phpdi;
 
     /**
      * @var Pimple
@@ -32,34 +38,33 @@ class Application extends \Silex\Application
      */
     public function __construct(ContainerBuilder $containerBuilder = null, array $values = [])
     {
+        // The composite container "merges" PHP-DI and Pimple into one container
+        $this->rootContainer = new CompositeContainer();
+
         $this->pimple = new PimpleInterop();
+        $this->rootContainer->setPimple($this->pimple);
 
         $containerBuilder = $containerBuilder ?: new ContainerBuilder();
-        $containerBuilder->wrapContainer($this->pimple);
-        $this->container = $containerBuilder->build();
+        $containerBuilder->wrapContainer($this->rootContainer);
+        $this->phpdi = $containerBuilder->build();
+        $this->rootContainer->setPhpdi($this->phpdi);
 
         parent::__construct($values);
 
         // Override the controller resolver with ours
         $this->pimple['resolver'] = function () {
-            return new ControllerResolver($this->container);
+            return new ControllerResolver($this->phpdi);
         };
     }
 
     public function offsetGet($id)
     {
-        if ($this->container->has($id)) {
-            return $this->container->get($id);
-        }
-        return $this->pimple[$id];
+        return $this->rootContainer->get($id);
     }
 
     public function offsetExists($id)
     {
-        if ($this->container->has($id)) {
-            return true;
-        }
-        return isset($this->pimple[$id]);
+        return $this->rootContainer->has($id);
     }
 
     public function offsetSet($id, $value)
@@ -92,6 +97,14 @@ class Application extends \Silex\Application
      */
     public function getContainer()
     {
-        return $this->pimple;
+        return $this->rootContainer;
+    }
+
+    /**
+     * @return Container
+     */
+    public function getPhpDi()
+    {
+        return $this->phpdi;
     }
 }

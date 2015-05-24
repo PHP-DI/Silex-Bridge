@@ -22,4 +22,24 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
         $container = $app->getContainer();
         $this->assertEquals('bar', $container->get('foo'));
     }
+
+    /**
+     * @test
+     */
+    public function the_application_container_should_be_container_interface()
+    {
+        $app = new Application();
+
+        $this->assertInstanceOf('Interop\Container\ContainerInterface', $app->getContainer());
+    }
+
+    /**
+     * @test
+     */
+    public function the_application_should_expose_phpdi_container()
+    {
+        $app = new Application();
+
+        $this->assertInstanceOf('DI\Container', $app->getPhpDi());
+    }
 }
