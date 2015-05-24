@@ -5,6 +5,7 @@ namespace DI\Bridge\Silex;
 use DI\Bridge\Silex\Controller\ControllerResolver;
 use DI\Container;
 use DI\ContainerBuilder;
+use Interop\Container\ContainerInterface;
 use Interop\Container\Pimple\PimpleInterop;
 use Pimple;
 
@@ -87,10 +88,10 @@ class Application extends \Silex\Application
     }
 
     /**
-     * @return Container
+     * @return ContainerInterface
      */
     public function getContainer()
     {
-        return $this->container;
+        return $this->pimple;
     }
 }
