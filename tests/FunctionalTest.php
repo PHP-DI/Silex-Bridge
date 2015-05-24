@@ -2,6 +2,8 @@
 
 namespace DI\Bridge\Silex\Test;
 
+use DI\ContainerBuilder;
+use stdClass;
 use Symfony\Component\HttpFoundation\Request;
 
 class FunctionalTest extends BaseTestCase
@@ -41,7 +43,7 @@ class FunctionalTest extends BaseTestCase
     {
         $app = $this->createApplication();
 
-        $app->get('/foo', array('DI\Bridge\Silex\Test\Fixture\Controller', 'home'));
+        $app->get('/foo', ['DI\Bridge\Silex\Test\Fixture\Controller', 'home']);
 
         $response = $app->handle(Request::create('/foo'));
         $this->assertEquals('Hello world', $response->getContent());
@@ -54,7 +56,7 @@ class FunctionalTest extends BaseTestCase
     {
         $app = $this->createApplication();
 
-        $app->get('/{name}', array('DI\Bridge\Silex\Test\Fixture\Controller', 'hello'));
+        $app->get('/{name}', ['DI\Bridge\Silex\Test\Fixture\Controller', 'hello']);
 
         $response = $app->handle(Request::create('/john'));
         $this->assertEquals('Hello john', $response->getContent());
@@ -67,7 +69,7 @@ class FunctionalTest extends BaseTestCase
     {
         $app = $this->createApplication();
 
-        $app->get('/', array('DI\Bridge\Silex\Test\Fixture\Controller', 'hello'));
+        $app->get('/', ['DI\Bridge\Silex\Test\Fixture\Controller', 'hello']);
 
         $response = $app->handle(Request::create('/?name=john'));
         $this->assertEquals('Hello john', $response->getContent());
@@ -86,5 +88,48 @@ class FunctionalTest extends BaseTestCase
             'name' => 'john',
         ]));
         $this->assertEquals('Hello john', $response->getContent());
+    }
+
+    /**
+     * @test
+     */
+    public function should_pass_phpdi_service_based_on_type_hint()
+    {
+        $builder = new ContainerBuilder;
+        $builder->addDefinitions([
+            'stdClass' => function () {
+                $service = new stdClass;
+                $service->foo = 'bar';
+                return $service;
+            },
+        ]);
+
+        $app = $this->createApplication($builder);
+
+        $app->get('/', function (stdClass $param) {
+            return $param->foo;
+        });
+
+        $response = $app->handle(Request::create('/'));
+        $this->assertEquals('bar', $response->getContent());
+    }
+
+    /**
+     * @test
+     */
+    public function should_pass_pimple_service_based_on_type_hint()
+    {
+        $app = $this->createApplication();
+
+        $service = new stdClass;
+        $service->foo = 'bar';
+        $app['stdClass'] = $service;
+
+        $app->get('/', function (stdClass $param) {
+            return $param->foo;
+        });
+
+        $response = $app->handle(Request::create('/'));
+        $this->assertEquals('bar', $response->getContent());
     }
 }
