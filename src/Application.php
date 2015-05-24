@@ -26,13 +26,14 @@ class Application extends \Silex\Application
 
     /**
      * @param Container|null $container You can optionally provide your own container.
+     * @param array          $values
      */
-    public function __construct(Container $container = null)
+    public function __construct(Container $container = null, array $values = [])
     {
         $this->container = $container ?: ContainerBuilder::buildDevContainer();
         $this->pimple = new Pimple();
 
-        parent::__construct();
+        parent::__construct($values);
 
         // Override the controller resolver with ours
         $this->pimple['resolver'] = function () {
