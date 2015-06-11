@@ -16,7 +16,7 @@
     "require": {
         "php": ">=5.4",
         "silex/silex" : "~1.2",
-        "mnapoli/php-di": "~5.0",
+        "php-di/php-di": "~5.0",
         "mouf/pimple-interop": "~1.0"
     },
     "require-dev": {
