@@ -16,13 +16,11 @@
     "require": {
         "php": ">=5.4",
         "silex/silex" : "~1.2",
-        "mnapoli/php-di": "5.0.x-dev",
+        "mnapoli/php-di": "~5.0",
         "mouf/pimple-interop": "~1.0"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.5",
         "twig/twig": "~1.8"
-    },
-    "minimum-stability": "dev",
-    "prefer-stable": true
+    }
 }
