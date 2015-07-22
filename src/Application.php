@@ -84,7 +84,7 @@ class Application extends \Silex\Application
 
     public function extend($id, $callable)
     {
-        $this->pimple->extend($id, $callable);
+        return $this->pimple->extend($id, $callable);
     }
 
     public function keys()
