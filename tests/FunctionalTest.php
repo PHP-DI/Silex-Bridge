@@ -3,6 +3,7 @@
 namespace DI\Bridge\Silex\Test;
 
 use DI\ContainerBuilder;
+use Interop\Container\ContainerInterface;
 use stdClass;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -114,6 +115,26 @@ class FunctionalTest extends BaseTestCase
 
         $app->get('/', function (stdClass $param) {
             return $param->foo;
+        });
+
+        $response = $app->handle(Request::create('/'));
+        $this->assertEquals('bar', $response->getContent());
+    }
+
+    /**
+     * @test
+     */
+    public function should_pass_the_container_based_on_type_hint()
+    {
+        $builder = new ContainerBuilder;
+        $builder->addDefinitions([
+            'foo' => 'bar',
+        ]);
+
+        $app = $this->createApplication($builder);
+
+        $app->get('/', function (ContainerInterface $container) {
+            return $container->get('foo');
         });
 
         $response = $app->handle(Request::create('/'));

@@ -45,8 +45,12 @@ class Application extends \Silex\Application
         $this->rootContainer->setPimple($this->pimple);
 
         $containerBuilder = $containerBuilder ?: new ContainerBuilder();
+        $containerBuilder->addDefinitions([
+            'Interop\Container\ContainerInterface' => $this->rootContainer,
+        ]);
         $containerBuilder->wrapContainer($this->rootContainer);
         $this->phpdi = $containerBuilder->build();
+
         $this->rootContainer->setPhpdi($this->phpdi);
 
         parent::__construct($values);
