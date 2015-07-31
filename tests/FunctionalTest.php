@@ -93,6 +93,21 @@ class FunctionalTest extends BaseTestCase
     /**
      * @test
      */
+    public function should_pass_request_object()
+    {
+        $app = $this->createApplication();
+
+        $app->get('/', function (Request $request) {
+            return 'Hello ' . $request->get('name');
+        });
+
+        $response = $app->handle(Request::create('/?name=john'));
+        $this->assertEquals('Hello john', $response->getContent());
+    }
+
+    /**
+     * @test
+     */
     public function should_pass_phpdi_service_based_on_type_hint()
     {
         $builder = new ContainerBuilder;

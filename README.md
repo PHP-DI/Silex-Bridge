@@ -46,12 +46,17 @@ $app->post('/register/{name}', function ($name, Mailer $mailer) {
 
     return 'You have received a new email';
 });
+
+// You can also inject the whole request object like in a traditional Silex application
+$app->post('/register/{name}', function (Request $request, Mailer $mailer) {
+    // ...
+});
 ```
 
 Dependency injection in controllers works using type-hinting:
 
 - it can be mixed with request parameters (`$name` in the example above)
-- the order of parameters doesn't matter, they are resolved by type-hint (for dependency injection) and by name (for request parameters)
+- the order of parameters doesn't matter, they are resolved by type-hint (for dependency injection) and by name (for request attributes)
 - it only works with objects that you can type-hint: you can't inject string/int values for example, and you can't inject container entries whose name is not a class/interface name (e.g. `twig` or `doctrine.entity_manager`)
 
 ## Configuring the container

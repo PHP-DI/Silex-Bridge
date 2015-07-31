@@ -33,7 +33,10 @@ class ControllerResolver implements ControllerResolverInterface
         }
 
         return function () use ($request, $controller) {
-            $parameters = $request->attributes->all() + $request->request->all() + $request->query->all();
+            $parameters = [
+                'request' => $request,
+            ];
+            $parameters += $request->attributes->all() + $request->request->all() + $request->query->all();
 
             return $this->invoker->call($controller, $parameters);
         };
