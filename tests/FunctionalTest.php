@@ -65,34 +65,6 @@ class FunctionalTest extends BaseTestCase
     /**
      * @test
      */
-    public function should_pass_query_parameters()
-    {
-        $app = $this->createApplication();
-
-        $app->get('/', ['DI\Bridge\Silex\Test\Fixture\Controller', 'hello']);
-
-        $response = $app->handle(Request::create('/?name=john'));
-        $this->assertEquals('Hello john', $response->getContent());
-    }
-
-    /**
-     * @test
-     */
-    public function should_pass_post_data()
-    {
-        $app = $this->createApplication();
-
-        $app->post('/', ['DI\Bridge\Silex\Test\Fixture\Controller', 'hello']);
-
-        $response = $app->handle(Request::create('/', 'POST', [
-            'name' => 'john',
-        ]));
-        $this->assertEquals('Hello john', $response->getContent());
-    }
-
-    /**
-     * @test
-     */
     public function should_pass_request_object()
     {
         $app = $this->createApplication();
