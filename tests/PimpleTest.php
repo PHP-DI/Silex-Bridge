@@ -79,4 +79,23 @@ class PimpleTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Closure', $app->raw('foo'));
     }
+
+    /**
+     * @test
+     */
+    public function extend_should_extend_the_pimple_entry()
+    {
+        $app = new Application();
+
+        $app['foo'] = $app->share(function () {
+            return new \stdClass();
+        });
+        $app['foo'] = $app->extend('foo', function (\stdClass $previous) {
+            $previous->hello = 'world';
+            return $previous;
+        });
+
+        $this->assertInstanceOf('stdClass', $app['foo']);
+        $this->assertEquals('world', $app['foo']->hello);
+    }
 }
