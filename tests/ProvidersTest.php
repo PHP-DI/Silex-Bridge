@@ -3,8 +3,14 @@
 namespace DI\Bridge\Silex\Test;
 
 use DI\ContainerBuilder;
+use Silex\Provider\SwiftmailerServiceProvider;
 use Silex\Provider\TwigServiceProvider;
+use Silex\Provider\UrlGeneratorServiceProvider;
+use Swift_Events_SimpleEventDispatcher;
+use Swift_Mailer;
+use Swift_Transport_NullTransport;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Generator\UrlGenerator;
 
 class ProvidersTest extends BaseTestCase
 {
@@ -30,5 +36,57 @@ class ProvidersTest extends BaseTestCase
 
         $response = $app->handle(Request::create('/'));
         $this->assertEquals('Hello', $response->getContent());
+    }
+
+    /**
+     * @see https://github.com/PHP-DI/Silex-Bridge/issues/3
+     * @test
+     */
+    public function test_url_generator()
+    {
+        $builder = new ContainerBuilder;
+        $builder->addDefinitions([
+            // Create an alias so that we can inject with the type-hint
+            'Symfony\Component\Routing\Generator\UrlGenerator' => \DI\get('url_generator'),
+        ]);
+        $app = $this->createApplication($builder);
+
+        $app->register(new UrlGeneratorServiceProvider());
+
+        $app->get('/', function (UrlGenerator $urlGenerator) {
+            return $urlGenerator->generate('home');
+        })->bind('home');
+
+        $response = $app->handle(Request::create('/'));
+        $this->assertEquals('/', $response->getContent());
+    }
+
+    /**
+     * @see https://github.com/PHP-DI/Silex-Bridge/issues/3
+     * @test
+     */
+    public function test_mailer()
+    {
+        $builder = new ContainerBuilder;
+        $builder->addDefinitions([
+            // Create an alias so that we can inject with the type-hint
+            'Swift_Mailer' => \DI\get('mailer'),
+        ]);
+        $app = $this->createApplication($builder);
+
+        $app->register(new SwiftmailerServiceProvider, [
+            'swiftmailer.transport' => new Swift_Transport_NullTransport(
+                new Swift_Events_SimpleEventDispatcher
+            ),
+        ]);
+
+        $app->get('/', function (Swift_Mailer $mailer) {
+            $message = \Swift_Message::newInstance();
+            $mailer->send($message);
+            return 'OK';
+        });
+
+        $response = $app->handle(Request::create('/'));
+        $this->assertEquals('OK', $response->getContent());
     }
 }
