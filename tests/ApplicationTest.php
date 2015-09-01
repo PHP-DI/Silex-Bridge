@@ -42,4 +42,15 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('DI\Container', $app->getPhpDi());
     }
+
+    /**
+     * @test
+     */
+    public function the_controller_resolver_should_be_registered_as_a_service()
+    {
+        $app = new Application();
+
+        $this->assertInstanceOf('Closure', $app->raw('resolver'));
+        $this->assertInstanceOf('DI\Bridge\Silex\Controller\ControllerResolver', $app['resolver']);
+    }
 }
