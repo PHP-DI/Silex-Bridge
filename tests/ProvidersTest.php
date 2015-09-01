@@ -4,7 +4,9 @@ namespace DI\Bridge\Silex\Test;
 
 use DI\ContainerBuilder;
 use Silex\Provider\TwigServiceProvider;
+use Silex\Provider\UrlGeneratorServiceProvider;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Generator\UrlGenerator;
 
 class ProvidersTest extends BaseTestCase
 {
@@ -30,5 +32,28 @@ class ProvidersTest extends BaseTestCase
 
         $response = $app->handle(Request::create('/'));
         $this->assertEquals('Hello', $response->getContent());
+    }
+
+    /**
+     * @see https://github.com/PHP-DI/Silex-Bridge/issues/3
+     * @test
+     */
+    public function test_url_generator()
+    {
+        $builder = new ContainerBuilder;
+        $builder->addDefinitions([
+            // Create an alias so that we can inject with the type-hint
+            'Symfony\Component\Routing\Generator\UrlGenerator' => \DI\get('url_generator'),
+        ]);
+        $app = $this->createApplication($builder);
+
+        $app->register(new UrlGeneratorServiceProvider());
+
+        $app->get('/', function (UrlGenerator $urlGenerator) {
+            return $urlGenerator->generate('home');
+        })->bind('home');
+
+        $response = $app->handle(Request::create('/'));
+        $this->assertEquals('/', $response->getContent());
     }
 }
