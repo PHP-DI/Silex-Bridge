@@ -43,7 +43,9 @@ class Application extends \Silex\Application
         parent::__construct($values);
 
         // Override the controller resolver with ours
-        $this['resolver'] = new ControllerResolver($this->phpdi);
+        $this['resolver'] = $this->share(function () {
+            return new ControllerResolver($this->phpdi);
+        });
     }
 
     public function offsetGet($id)
