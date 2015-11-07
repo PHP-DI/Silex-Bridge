@@ -2,7 +2,10 @@
 
 namespace DI\Bridge\Silex\Controller;
 
-use DI\InvokerInterface;
+use Invoker\CallableResolver;
+use Invoker\Exception\NotCallableException;
+use Invoker\ParameterResolver\ParameterResolver;
+use Invoker\Reflection\CallableReflection;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ControllerResolverInterface;
 
@@ -12,13 +15,25 @@ use Symfony\Component\HttpKernel\Controller\ControllerResolverInterface;
 class ControllerResolver implements ControllerResolverInterface
 {
     /**
-     * @var InvokerInterface
+     * @var CallableResolver
      */
-    private $invoker;
+    private $callableResolver;
 
-    public function __construct(InvokerInterface $invoker)
+    /**
+     * @var ParameterResolver
+     */
+    private $parameterResolver;
+
+    /**
+     * Constructor.
+     *
+     * @param CallableResolver  $callableResolver
+     * @param ParameterResolver $parameterResolver
+     */
+    public function __construct(CallableResolver $callableResolver, ParameterResolver $parameterResolver)
     {
-        $this->invoker = $invoker;
+        $this->callableResolver = $callableResolver;
+        $this->parameterResolver = $parameterResolver;
     }
 
     /**
@@ -26,20 +41,22 @@ class ControllerResolver implements ControllerResolverInterface
      */
     public function getController(Request $request)
     {
-        $controller = $request->attributes->get('_controller');
-
-        if (! $controller) {
-            throw new \LogicException('No controller can be found for this request');
+        if (! $controller = $request->attributes->get('_controller')) {
+            throw new \LogicException(sprintf(
+                'Controller for URI "%s" could not be found because the "_controller" parameter is missing.',
+                $request->getPathInfo()
+            ));
         }
 
-        return function () use ($request, $controller) {
-            $parameters = [
-                'request' => $request,
-            ];
-            $parameters += $request->attributes->all();
-
-            return $this->invoker->call($controller, $parameters);
-        };
+        try {
+            return $this->callableResolver->resolve($controller);
+        } catch (NotCallableException $e) {
+            throw new \InvalidArgumentException(sprintf(
+                'Controller for URI "%s" is not callable: %s',
+                $request->getPathInfo(),
+                $e->getMessage()
+            ));
+        }
     }
 
     /**
@@ -47,6 +64,38 @@ class ControllerResolver implements ControllerResolverInterface
      */
     public function getArguments(Request $request, $controller)
     {
-        return array();
+        $controllerReflection = CallableReflection::create($controller);
+        $controllerParameters = $controllerReflection->getParameters();
+        $resolvedArguments = [];
+
+        foreach ($controllerParameters as $index => $parameter) {
+            if ('request' === $parameter->getName() || ($parameter->getClass() && $parameter->getClass()->isInstance($request))) {
+                $resolvedArguments[$index] = $request;
+
+                break;
+            }
+        }
+
+        $arguments = $this->parameterResolver->getParameters(
+            $controllerReflection,
+            $request->attributes->all(),
+            $resolvedArguments
+        );
+
+        ksort($arguments);
+
+        // Check if all parameters are resolved
+        $diff = array_diff_key($controllerParameters, $arguments);
+        if (0 < count($diff)) {
+            /** @var \ReflectionParameter $parameter */
+            $parameter = reset($diff);
+            throw new \RuntimeException(sprintf(
+                'Controller "%s" requires that you provide a value for the "$%s" argument.',
+                $controllerReflection->getName(),
+                $parameter->getName()
+            ));
+        }
+
+        return $arguments;
     }
 }

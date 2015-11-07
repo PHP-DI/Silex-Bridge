@@ -2,7 +2,9 @@
 
 namespace DI\Bridge\Silex\Test;
 
+use DI\Bridge\Silex\Test\Fixture\Controller;
 use DI\ContainerBuilder;
+use Silex\Provider\ServiceControllerServiceProvider;
 use Silex\Provider\SwiftmailerServiceProvider;
 use Silex\Provider\TwigServiceProvider;
 use Silex\Provider\UrlGeneratorServiceProvider;
@@ -88,5 +90,23 @@ class ProvidersTest extends BaseTestCase
 
         $response = $app->handle(Request::create('/'));
         $this->assertEquals('OK', $response->getContent());
+    }
+
+    /**
+     * @see https://github.com/PHP-DI/Silex-Bridge/issues/7
+     * @test
+     */
+    public function test_service_controller_service_provider()
+    {
+        $app = $this->createApplication();
+
+        $app->register(new ServiceControllerServiceProvider, [
+            'service.controller' => new Controller,
+        ]);
+
+        $app->get('/{name}', 'service.controller:hello');
+
+        $response = $app->handle(Request::create('/john'));
+        $this->assertEquals('Hello john', $response->getContent());
     }
 }

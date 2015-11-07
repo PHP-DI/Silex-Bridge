@@ -66,11 +66,11 @@ class FunctionalTest extends BaseTestCase
     /**
      * @test
      */
-    public function should_pass_request_object()
+    public function should_pass_request_object_by_parameter_name()
     {
         $app = $this->createApplication();
 
-        $app->get('/', function (Request $request) {
+        $app->get('/', function ($request) {
             return 'Hello ' . $request->get('name');
         });
 
@@ -139,5 +139,53 @@ class FunctionalTest extends BaseTestCase
 
         $response = $app->handle(Request::create('/'));
         $this->assertEquals('bar', $response->getContent());
+    }
+
+    /**
+     * @test
+     */
+    public function should_pass_the_silex_application_based_on_type_hint()
+    {
+        $app = $this->createApplication();
+        $app['foo'] = 'bar';
+
+        $app->get('/', function (\Silex\Application $a) {
+            return $a['foo'];
+        });
+
+        $response = $app->handle(Request::create('/'));
+        $this->assertEquals('bar', $response->getContent());
+    }
+
+    /**
+     * @test
+     */
+    public function should_pass_the_own_application_based_on_type_hint()
+    {
+        $app = new \DI\Bridge\Silex\Test\Fixture\Application(null, [
+            'foo' => 'bar',
+        ]);
+
+        $app->get('/', function (\DI\Bridge\Silex\Test\Fixture\Application $a) {
+            return $a['foo'];
+        });
+
+        $response = $app->handle(Request::create('/'));
+        $this->assertEquals('bar', $response->getContent());
+    }
+
+    /**
+     * @test
+     */
+    public function should_pass_request_object_based_on_type_hint()
+    {
+        $app = $this->createApplication();
+
+        $app->get('/', function (Request $r) {
+            return 'Hello ' . $r->get('name');
+        });
+
+        $response = $app->handle(Request::create('/?name=john'));
+        $this->assertEquals('Hello john', $response->getContent());
     }
 }
