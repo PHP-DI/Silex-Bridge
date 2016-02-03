@@ -6,8 +6,7 @@ use Invoker\CallableResolver;
 use Invoker\Exception\NotCallableException;
 
 /**
- * Class CallbackResolver
- * @package DI\Bridge\Silex
+ * This alternative resolver uses the generic Invoker to support PHP-DI's extended callable syntax
  */
 class CallbackResolver extends \Silex\CallbackResolver
 {
@@ -16,10 +15,6 @@ class CallbackResolver extends \Silex\CallbackResolver
      */
     private $resolver;
 
-    /**
-     * @param \Pimple $app
-     * @param CallableResolver $resolver
-     */
     public function __construct(\Pimple $app, CallableResolver $resolver)
     {
         $this->resolver = $resolver;
@@ -46,11 +41,16 @@ class CallbackResolver extends \Silex\CallbackResolver
     }
 
     /**
-     * @param string $name
-     * @return array|callable
+     * @param string|callable $name
+     * @return callable
      */
     public function resolveCallback($name)
     {
+        // return immediately if $name is callable
+        if (is_callable($name)) {
+            return $name;
+        }
+
         return $this->convertCallback($name);
     }
 }
