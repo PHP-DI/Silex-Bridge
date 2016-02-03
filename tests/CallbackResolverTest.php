@@ -40,6 +40,20 @@ class CallbackResolverTest extends BaseTestCase
     /**
      * @test
      */
+    public function resolver_must_able_to_resolve_callable_callback()
+    {
+        $app = new Application();
+
+        $callable = $app['callback_resolver']->resolveCallback(function () {
+            return 'Hello world';
+        });
+
+        $this->assertEquals('Hello world', $callable());
+    }
+
+    /**
+     * @test
+     */
     public function resolver_must_throw_exeption_when_callback_not_found_in_container()
     {
         $app = new Application();
