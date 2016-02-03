@@ -58,6 +58,14 @@ class Application extends \Silex\Application
                 ])
             );
         });
+
+        // Override the callback resolver with ours
+        $this['callback_resolver'] = $this->share(function () {
+            return new CallbackResolver(
+                $this,
+                new CallableResolver($this->containerInteropProxy)
+            );
+        });
     }
 
     public function offsetGet($id)
