@@ -6,6 +6,12 @@ use DI\ContainerBuilder;
 use Interop\Container\ContainerInterface;
 use stdClass;
 use Symfony\Component\HttpFoundation\Request;
+use DI\Bridge\Silex\Test\Fixture\InvokableController;
+use DI\Bridge\Silex\Test\Fixture\InvokableConverter;
+use DI\Bridge\Silex\Test\Fixture\HelloController;
+use DI\Bridge\Silex\Test\Fixture\InvokableMiddleware;
+use DI\Bridge\Silex\Test\Fixture\InvokableErrorListener;
+use DI\Bridge\Silex\Test\Fixture\InvokableViewListener;
 
 class FunctionalTest extends BaseTestCase
 {
@@ -187,5 +193,61 @@ class FunctionalTest extends BaseTestCase
 
         $response = $app->handle(Request::create('/?name=john'));
         $this->assertEquals('Hello john', $response->getContent());
+    }
+
+    /**
+     * @test
+     */
+    public function should_able_to_convert_request()
+    {
+        $app = $this->createApplication();
+
+        $app->get('/{user}', HelloController::class)
+            ->convert('user', InvokableConverter::class);
+
+        $response = $app->handle(Request::create('/PHPDI'));
+        $this->assertEquals('PHPDI', $response->getContent());
+    }
+
+    /**
+     * @test
+     */
+    public function should_able_to_use_invokable_middleware()
+    {
+        $app = $this->createApplication();
+
+        $app->get('/', InvokableController::class)
+            ->before(InvokableMiddleware::class);
+
+        $response = $app->handle(Request::create('/'));
+        $this->assertEquals('Hello from middleware', $response->getContent());
+    }
+
+    /**
+     * @test
+     */
+    public function should_able_to_use_invokable_error_listener()
+    {
+        $app = $this->createApplication();
+
+        $app->error(InvokableErrorListener::class);
+
+        $response = $app->handle(Request::create('/'));
+        $this->assertEquals('Sad panda :(', $response->getContent());
+    }
+
+    /**
+     * @test
+     */
+    public function should_able_to_use_view_listener()
+    {
+        $app = $this->createApplication();
+
+        $app->get('/', InvokableController::class);
+
+        $app->view(InvokableViewListener::class);
+
+        $response = $app->handle(Request::create('/'));
+        $this->assertEquals('Hello world from mars', $response->getContent());
     }
 }
