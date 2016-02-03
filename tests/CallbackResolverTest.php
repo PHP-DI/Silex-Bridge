@@ -43,11 +43,8 @@ class CallbackResolverTest extends BaseTestCase
     public function resolver_must_throw_exeption_when_callback_not_found_in_container()
     {
         $app = new Application();
-        $app['controller'] = function () {
-            return new InvokableController();
-        };
 
         $this->setExpectedException('\InvalidArgumentException');
-        $callable = $app['callback_resolver']->resolveCallback('some.service');
+        $app['callback_resolver']->resolveCallback('some.service');
     }
 }
