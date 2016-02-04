@@ -36,7 +36,7 @@ class CallbackResolver extends \Silex\CallbackResolver
         try {
             return $this->resolver->resolve($name);
         } catch (NotCallableException $e) {
-            throw new \InvalidArgumentException(sprintf('Service "%s" does not exist.', $name));
+            throw new \InvalidArgumentException($e->getMessage());
         }
     }
 
@@ -46,11 +46,6 @@ class CallbackResolver extends \Silex\CallbackResolver
      */
     public function resolveCallback($name)
     {
-        // return immediately if $name is callable
-        if (is_callable($name)) {
-            return $name;
-        }
-
         return $this->convertCallback($name);
     }
 }
