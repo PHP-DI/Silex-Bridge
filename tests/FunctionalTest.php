@@ -188,4 +188,60 @@ class FunctionalTest extends BaseTestCase
         $response = $app->handle(Request::create('/?name=john'));
         $this->assertEquals('Hello john', $response->getContent());
     }
+
+    /**
+     * @test
+     */
+    public function should_be_able_to_convert_request()
+    {
+        $app = $this->createApplication();
+
+        $app->get('/{user}', 'DI\Bridge\Silex\Test\Fixture\HelloController')
+            ->convert('user', 'DI\Bridge\Silex\Test\Fixture\InvokableConverter');
+
+        $response = $app->handle(Request::create('/PHPDI'));
+        $this->assertEquals('PHPDI', $response->getContent());
+    }
+
+    /**
+     * @test
+     */
+    public function should_be_able_to_use_invokable_middleware()
+    {
+        $app = $this->createApplication();
+
+        $app->get('/', 'DI\Bridge\Silex\Test\Fixture\InvokableController')
+            ->before('DI\Bridge\Silex\Test\Fixture\InvokableMiddleware');
+
+        $response = $app->handle(Request::create('/'));
+        $this->assertEquals('Hello from middleware', $response->getContent());
+    }
+
+    /**
+     * @test
+     */
+    public function should_be_able_to_use_invokable_error_listener()
+    {
+        $app = $this->createApplication();
+
+        $app->error('DI\Bridge\Silex\Test\Fixture\InvokableErrorListener');
+
+        $response = $app->handle(Request::create('/'));
+        $this->assertEquals('Sad panda :(', $response->getContent());
+    }
+
+    /**
+     * @test
+     */
+    public function should_be_able_to_use_view_listener()
+    {
+        $app = $this->createApplication();
+
+        $app->get('/', 'DI\Bridge\Silex\Test\Fixture\InvokableController');
+
+        $app->view('DI\Bridge\Silex\Test\Fixture\InvokableViewListener');
+
+        $response = $app->handle(Request::create('/'));
+        $this->assertEquals('Hello world from mars', $response->getContent());
+    }
 }

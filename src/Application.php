@@ -48,14 +48,26 @@ class Application extends \Silex\Application
 
         parent::__construct($values);
 
+        $this['phpdi.callable_resolver'] = $this->share(function () {
+            return new CallableResolver($this->containerInteropProxy);
+        });
+
         // Override the controller resolver with ours
         $this['resolver'] = $this->share(function () {
             return new ControllerResolver(
-                new CallableResolver($this->containerInteropProxy),
+                $this['phpdi.callable_resolver'],
                 new ResolverChain([
                     new AssociativeArrayResolver,
                     new TypeHintContainerResolver($this->containerInteropProxy),
                 ])
+            );
+        });
+
+        // Override the callback resolver with ours
+        $this['callback_resolver'] = $this->share(function () {
+            return new CallbackResolver(
+                $this,
+                $this['phpdi.callable_resolver']
             );
         });
     }
