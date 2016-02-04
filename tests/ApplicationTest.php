@@ -57,7 +57,7 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function the_callback_resolver_should_be_registers_as_a_service()
+    public function the_callback_resolver_should_be_registered_as_a_service()
     {
         $app = new Application();
 

@@ -192,7 +192,7 @@ class FunctionalTest extends BaseTestCase
     /**
      * @test
      */
-    public function should_able_to_convert_request()
+    public function should_be_able_to_convert_request()
     {
         $app = $this->createApplication();
 
@@ -206,7 +206,7 @@ class FunctionalTest extends BaseTestCase
     /**
      * @test
      */
-    public function should_able_to_use_invokable_middleware()
+    public function should_be_able_to_use_invokable_middleware()
     {
         $app = $this->createApplication();
 
@@ -220,7 +220,7 @@ class FunctionalTest extends BaseTestCase
     /**
      * @test
      */
-    public function should_able_to_use_invokable_error_listener()
+    public function should_be_able_to_use_invokable_error_listener()
     {
         $app = $this->createApplication();
 
@@ -233,7 +233,7 @@ class FunctionalTest extends BaseTestCase
     /**
      * @test
      */
-    public function should_able_to_use_view_listener()
+    public function should_be_able_to_use_view_listener()
     {
         $app = $this->createApplication();
 

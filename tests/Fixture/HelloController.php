@@ -1,6 +1,5 @@
 <?php
 
-
 namespace DI\Bridge\Silex\Test\Fixture;
 
 class HelloController

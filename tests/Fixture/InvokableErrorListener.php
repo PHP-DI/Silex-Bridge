@@ -8,6 +8,6 @@ class InvokableErrorListener
 {
     public function __invoke(\Exception $e, $code)
     {
-        return new Response("Sad panda :(");
+        return new Response('Sad panda :(');
     }
 }

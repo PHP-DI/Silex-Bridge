@@ -10,7 +10,7 @@ class CallbackResolverTest extends BaseTestCase
     /**
      * @test
      */
-    public function resolver_must_able_to_resolve_original_callback_format()
+    public function resolver_must_be_able_to_resolve_original_callback_format()
     {
         $app = new Application();
         $app['controller'] = function () {
@@ -40,7 +40,7 @@ class CallbackResolverTest extends BaseTestCase
     /**
      * @test
      */
-    public function resolver_must_able_to_resolve_callable_callback()
+    public function resolver_must_be_able_to_resolve_callable_callback()
     {
         $app = new Application();
 
@@ -54,7 +54,7 @@ class CallbackResolverTest extends BaseTestCase
     /**
      * @test
      */
-    public function resolver_must_throw_exeption_when_callback_not_found_in_container()
+    public function resolver_must_throw_exception_when_callback_not_found_in_container()
     {
         $app = new Application();
 
