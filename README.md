@@ -97,6 +97,29 @@ $app->get('/{name}', HelloController::class);
 
 Again you will notice that we pass the class name and not an instance. PHP-DI will correctly detect that this is an invokable class and will instantiate it.
 
+### Middlewares, route variable converters, error handlers and view handlers
+
+The callable resolution described above (for "controllers as services") applies for registering other Silex objects:
+
+- [middlewares](http://silex.sensiolabs.org/doc/middlewares.html)
+- [route variable converters](http://silex.sensiolabs.org/doc/usage.html#route-variable-converters)
+- [error handlers](http://silex.sensiolabs.org/doc/usage.html#error-handlers)
+- [view handlers](http://silex.sensiolabs.org/doc/usage.html#view-handlers)
+
+For example you can define a middleware like so and let PHP-DI instantiate it:
+
+```php
+class AuthMiddleware
+{
+    public function beforeRoute(Request $request, Application $app)
+    {
+        // ...
+    }
+}
+
+$app->before([AuthMiddleware::class, 'beforeRoute']);
+```
+
 ## Configuring the container
 
 You can configure PHP-DI's container by creating your own `ContainerBuilder` and passing it to the application:
