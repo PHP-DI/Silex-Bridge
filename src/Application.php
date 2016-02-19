@@ -30,11 +30,17 @@ class Application extends \Silex\Application
     private $phpdi;
 
     /**
+     * @var bool
+     */
+    private $isSilex2;
+
+    /**
      * @param ContainerBuilder|null $containerBuilder You can optionally provide your preconfigured container builder.
      * @param array                 $values
      */
     public function __construct(ContainerBuilder $containerBuilder = null, array $values = [])
     {
+        $this->isSilex2 = is_subclass_of($this, 'Pimple\Container', false);
         $this->containerInteropProxy = new ContainerInteropProxy($this);
 
         $containerBuilder = $containerBuilder ?: new ContainerBuilder();
@@ -48,12 +54,12 @@ class Application extends \Silex\Application
 
         parent::__construct($values);
 
-        $this['phpdi.callable_resolver'] = $this->share(function () {
+        $this['phpdi.callable_resolver'] = $this->createSharedPimpleService(function () {
             return new CallableResolver($this->containerInteropProxy);
         });
 
         // Override the controller resolver with ours
-        $this['resolver'] = $this->share(function () {
+        $this['resolver'] = $this->createSharedPimpleService(function () {
             return new ControllerResolver(
                 $this['phpdi.callable_resolver'],
                 new ResolverChain([
@@ -64,7 +70,7 @@ class Application extends \Silex\Application
         });
 
         // Override the callback resolver with ours
-        $this['callback_resolver'] = $this->share(function () {
+        $this['callback_resolver'] = $this->createSharedPimpleService(function () {
             return new CallbackResolver(
                 $this,
                 $this['phpdi.callable_resolver']
@@ -99,5 +105,17 @@ class Application extends \Silex\Application
     public function getPhpDi()
     {
         return $this->phpdi;
+    }
+
+    /**
+     * Because Silex 2 uses Pimple 3 which has some API breaks compared to Pimple 1 we have to create shared services
+     * differently.
+     *
+     * @param callable $service
+     * @return callable
+     */
+    private function createSharedPimpleService(callable $service)
+    {
+        return $this->isSilex2 ? $service : $this->share($service);
     }
 }

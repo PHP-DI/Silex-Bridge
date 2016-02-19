@@ -53,7 +53,10 @@ class ProvidersTest extends BaseTestCase
         ]);
         $app = $this->createApplication($builder);
 
-        $app->register(new UrlGeneratorServiceProvider());
+        if (BaseTestCase::isSilex1($app)) {
+            // The url generator is always available in Silex 2.
+            $app->register(new UrlGeneratorServiceProvider());
+        }
 
         $app->get('/', function (UrlGenerator $urlGenerator) {
             return $urlGenerator->generate('home');

@@ -29,9 +29,13 @@ class PimpleTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function closures_should_be_factories()
+    public function closures_should_be_factories_in_silex1()
     {
         $app = new Application();
+
+        if (BaseTestCase::isSilex2($app)) {
+            $this->markTestSkipped('Factory services are registered differently in Silex 2.');
+        }
 
         $app['foo'] = function () {
             return new \stdClass();
@@ -44,13 +48,55 @@ class PimpleTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function share_should_share_the_closure_result()
+    public function share_should_share_the_closure_result_in_silex1()
     {
         $app = new Application();
+
+        if (BaseTestCase::isSilex2($app)) {
+            $this->markTestSkipped('Shared services are registered differently in Silex 2.');
+        }
 
         $app['foo'] = $app->share(function () {
             return new \stdClass();
         });
+
+        $this->assertInstanceOf('stdClass', $app['foo']);
+        $this->assertSame($app['foo'], $app['foo']);
+    }
+
+    /**
+     * @test
+     */
+    public function factory_should_create_factory_services_in_silex2()
+    {
+        $app = new Application();
+
+        if (BaseTestCase::isSilex1($app)) {
+            $this->markTestSkipped('Factory services are registered differently in Silex 1.');
+        }
+
+        $app['foo'] = $app->factory(function () {
+            return new \stdClass();
+        });
+
+        $this->assertInstanceOf('stdClass', $app['foo']);
+        $this->assertNotSame($app['foo'], $app['foo']);
+    }
+
+    /**
+     * @test
+     */
+    public function closures_should_be_shared_in_silex2()
+    {
+        $app = new Application();
+
+        if (BaseTestCase::isSilex1($app)) {
+            $this->markTestSkipped('Shared services are registered differently in Silex 1.');
+        }
+
+        $app['foo'] = function () {
+            return new \stdClass();
+        };
 
         $this->assertInstanceOf('stdClass', $app['foo']);
         $this->assertSame($app['foo'], $app['foo']);
@@ -86,10 +132,15 @@ class PimpleTest extends \PHPUnit_Framework_TestCase
     public function extend_should_extend_the_pimple_entry()
     {
         $app = new Application();
-
-        $app['foo'] = $app->share(function () {
+        $service = function () {
             return new \stdClass();
-        });
+        };
+
+        if (BaseTestCase::isSilex1($app)) {
+            $service = $app->share($service);
+        }
+
+        $app['foo'] = $service;
         $app['foo'] = $app->extend('foo', function (\stdClass $previous) {
             $previous->hello = 'world';
             return $previous;
