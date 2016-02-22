@@ -13,7 +13,7 @@ class BaseTestCase extends PHPUnit_Framework_TestCase
         $app = new Application($builder);
 
         $app['debug'] = true;
-        $app['exception_handler']->disable();
+        unset($app['exception_handler']);
 
         return $app;
     }
