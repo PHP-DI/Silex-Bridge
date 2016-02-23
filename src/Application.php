@@ -48,12 +48,12 @@ class Application extends \Silex\Application
 
         parent::__construct($values);
 
-        $this['phpdi.callable_resolver'] = $this->share(function () {
+        $this['phpdi.callable_resolver'] = function () {
             return new CallableResolver($this->containerInteropProxy);
-        });
+        };
 
         // Override the controller resolver with ours
-        $this['resolver'] = $this->share(function () {
+        $this['resolver'] = function () {
             return new ControllerResolver(
                 $this['phpdi.callable_resolver'],
                 new ResolverChain([
@@ -61,15 +61,15 @@ class Application extends \Silex\Application
                     new TypeHintContainerResolver($this->containerInteropProxy),
                 ])
             );
-        });
+        };
 
         // Override the callback resolver with ours
-        $this['callback_resolver'] = $this->share(function () {
+        $this['callback_resolver'] = function () {
             return new CallbackResolver(
                 $this,
                 $this['phpdi.callable_resolver']
             );
-        });
+        };
     }
 
     public function offsetGet($id)

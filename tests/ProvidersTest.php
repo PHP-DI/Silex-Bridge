@@ -53,8 +53,6 @@ class ProvidersTest extends BaseTestCase
         ]);
         $app = $this->createApplication($builder);
 
-        $app->register(new UrlGeneratorServiceProvider());
-
         $app->get('/', function (UrlGenerator $urlGenerator) {
             return $urlGenerator->generate('home');
         })->bind('home');

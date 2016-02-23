@@ -15,7 +15,7 @@ class CallbackResolver extends \Silex\CallbackResolver
      */
     private $resolver;
 
-    public function __construct(\Pimple $app, CallableResolver $resolver)
+    public function __construct(\Pimple\Container $app, CallableResolver $resolver)
     {
         $this->resolver = $resolver;
         parent::__construct($app);
