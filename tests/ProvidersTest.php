@@ -7,10 +7,6 @@ use DI\ContainerBuilder;
 use Silex\Provider\ServiceControllerServiceProvider;
 use Silex\Provider\SwiftmailerServiceProvider;
 use Silex\Provider\TwigServiceProvider;
-use Silex\Provider\UrlGeneratorServiceProvider;
-use Swift_Events_SimpleEventDispatcher;
-use Swift_Mailer;
-use Swift_Transport_NullTransport;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 
@@ -24,11 +20,11 @@ class ProvidersTest extends BaseTestCase
         $builder = new ContainerBuilder;
         $builder->addDefinitions([
             // Create an alias so that we can inject with the type-hint
-            'Twig_Environment' => \DI\get('twig'),
+            \Twig_Environment::class => \DI\get('twig'),
         ]);
         $app = $this->createApplication($builder);
 
-        $app->register(new TwigServiceProvider(), [
+        $app->register(new TwigServiceProvider, [
             'twig.path' => __DIR__ . '/Fixture/views',
         ]);
 
@@ -49,7 +45,7 @@ class ProvidersTest extends BaseTestCase
         $builder = new ContainerBuilder;
         $builder->addDefinitions([
             // Create an alias so that we can inject with the type-hint
-            'Symfony\Component\Routing\Generator\UrlGenerator' => \DI\get('url_generator'),
+            UrlGenerator::class => \DI\get('url_generator'),
         ]);
         $app = $this->createApplication($builder);
 
@@ -70,17 +66,17 @@ class ProvidersTest extends BaseTestCase
         $builder = new ContainerBuilder;
         $builder->addDefinitions([
             // Create an alias so that we can inject with the type-hint
-            'Swift_Mailer' => \DI\get('mailer'),
+            \Swift_Mailer::class => \DI\get('mailer'),
         ]);
         $app = $this->createApplication($builder);
 
         $app->register(new SwiftmailerServiceProvider, [
-            'swiftmailer.transport' => new Swift_Transport_NullTransport(
-                new Swift_Events_SimpleEventDispatcher
+            'swiftmailer.transport' => new \Swift_Transport_NullTransport(
+                new \Swift_Events_SimpleEventDispatcher
             ),
         ]);
 
-        $app->get('/', function (Swift_Mailer $mailer) {
+        $app->get('/', function (\Swift_Mailer $mailer) {
             $message = \Swift_Message::newInstance();
             $mailer->send($message);
             return 'OK';

@@ -58,7 +58,7 @@ class CallbackResolverTest extends BaseTestCase
     {
         $app = new Application();
 
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->setExpectedException(\InvalidArgumentException::class);
         $app['callback_resolver']->resolveCallback('some.service');
     }
 }

@@ -2,12 +2,10 @@
 
 namespace DI\Bridge\Silex\Test;
 
-use DI\ContainerBuilder;
-
-use stdClass;
 use DI\Bridge\Silex\Application;
+use DI\ContainerBuilder;
+use stdClass;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class ConverterTest extends BaseTestCase
 {
@@ -30,7 +28,7 @@ class ConverterTest extends BaseTestCase
         $request = Request::create('/john?some=param');
 
         $converter = function (Request $req, Application $app, stdClass $someService, $user) use ($application) {
-            $this->assertInstanceOf('\Symfony\Component\HttpFoundation\Request', $req);
+            $this->assertInstanceOf(Request::class, $req);
             $this->assertEquals('param', $req->query->get('some'));
             $this->assertEquals($application, $app);
             $this->assertInstanceOf('stdClass', $someService);
@@ -60,7 +58,7 @@ class ConverterTest extends BaseTestCase
 
         $converter = function ($user, $req) use ($application) {
             $this->assertEquals($user, 'john');
-            $this->assertInstanceOf('\Symfony\Component\HttpFoundation\Request', $req);
+            $this->assertInstanceOf(Request::class, $req);
             $this->assertEquals('param', $req->query->get('some'));
             return ['name' => $user];
         };

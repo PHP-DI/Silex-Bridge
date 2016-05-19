@@ -2,10 +2,9 @@
 
 namespace DI\Bridge\Silex\Test;
 
-use DI\ContainerBuilder;
-
-use stdClass;
 use DI\Bridge\Silex\Application;
+use DI\ContainerBuilder;
+use stdClass;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -31,8 +30,8 @@ class MiddlewareTest extends BaseTestCase
 
         $afterMiddleware = function (Application $app, Response $res, Request $req, stdClass $someService) use ($application) {
             $this->assertEquals($application, $app);
-            $this->assertInstanceOf('\Symfony\Component\HttpFoundation\Response', $res);
-            $this->assertInstanceOf('\Symfony\Component\HttpFoundation\Request', $req);
+            $this->assertInstanceOf(Response::class, $res);
+            $this->assertInstanceOf(Request::class, $req);
             $this->assertEquals('john', $req->query->get('name'));
             $this->assertInstanceOf('stdClass', $someService);
             $this->assertAttributeEquals('bar', 'foo', $someService);
@@ -40,7 +39,7 @@ class MiddlewareTest extends BaseTestCase
 
         $beforeMiddleware = function (Application $app, Request $req, stdClass $someService) use ($application) {
             $this->assertEquals($application, $app);
-            $this->assertInstanceOf('\Symfony\Component\HttpFoundation\Request', $req);
+            $this->assertInstanceOf(Request::class, $req);
             $this->assertEquals('john', $req->query->get('name'));
             $this->assertInstanceOf('stdClass', $someService);
             $this->assertAttributeEquals('bar', 'foo', $someService);
@@ -72,15 +71,15 @@ class MiddlewareTest extends BaseTestCase
         $request = Request::create('/?name=john');
 
         $beforeMiddleware = function ($req, $app) use ($application) {
-            $this->assertInstanceOf('\Symfony\Component\HttpFoundation\Request', $req);
+            $this->assertInstanceOf(Request::class, $req);
             $this->assertEquals('john', $req->query->get('name'));
             $this->assertEquals($application, $app);
         };
 
         $afterMiddleware = function ($req, $res, $app) use ($application) {
-            $this->assertInstanceOf('\Symfony\Component\HttpFoundation\Request', $req);
+            $this->assertInstanceOf(Request::class, $req);
             $this->assertEquals('john', $req->query->get('name'));
-            $this->assertInstanceOf('\Symfony\Component\HttpFoundation\Response', $res);
+            $this->assertInstanceOf(Response::class, $res);
             $this->assertEquals($application, $app);
         };
 
