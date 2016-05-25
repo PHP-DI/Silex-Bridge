@@ -61,6 +61,7 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
     {
         $app = new Application();
 
+        $this->assertInstanceOf('Closure', $app->raw('callback_resolver'));
         $this->assertInstanceOf('DI\Bridge\Silex\CallbackResolver', $app['callback_resolver']);
     }
 }
