@@ -3,7 +3,11 @@
 namespace DI\Bridge\Silex\Test;
 
 use DI\Bridge\Silex\Application;
+use DI\Bridge\Silex\CallbackResolver;
+use DI\Bridge\Silex\Controller\ControllerResolver;
+use DI\Container;
 use DI\ContainerBuilder;
+use Interop\Container\ContainerInterface;
 
 class ApplicationTest extends \PHPUnit_Framework_TestCase
 {
@@ -30,7 +34,7 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
     {
         $app = new Application();
 
-        $this->assertInstanceOf('Interop\Container\ContainerInterface', $app->getContainer());
+        $this->assertInstanceOf(ContainerInterface::class, $app->getContainer());
     }
 
     /**
@@ -40,7 +44,7 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
     {
         $app = new Application();
 
-        $this->assertInstanceOf('DI\Container', $app->getPhpDi());
+        $this->assertInstanceOf(Container::class, $app->getPhpDi());
     }
 
     /**
@@ -50,8 +54,8 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
     {
         $app = new Application();
 
-        $this->assertInstanceOf('Closure', $app->raw('resolver'));
-        $this->assertInstanceOf('DI\Bridge\Silex\Controller\ControllerResolver', $app['resolver']);
+        $this->assertInstanceOf(\Closure::class, $app->raw('resolver'));
+        $this->assertInstanceOf(ControllerResolver::class, $app['resolver']);
     }
 
     /**
@@ -61,7 +65,7 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
     {
         $app = new Application();
 
-        $this->assertInstanceOf('Closure', $app->raw('callback_resolver'));
-        $this->assertInstanceOf('DI\Bridge\Silex\CallbackResolver', $app['callback_resolver']);
+        $this->assertInstanceOf(\Closure::class, $app->raw('callback_resolver'));
+        $this->assertInstanceOf(CallbackResolver::class, $app['callback_resolver']);
     }
 }

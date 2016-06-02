@@ -31,7 +31,7 @@ class FunctionalTest extends BaseTestCase
     {
         $app = $this->createApplication();
 
-        $app->get('/foo', 'DI\Bridge\Silex\Test\Fixture\InvokableController');
+        $app->get('/foo', Fixture\InvokableController::class);
 
         $response = $app->handle(Request::create('/foo'));
         $this->assertEquals('Hello world', $response->getContent());
@@ -44,7 +44,7 @@ class FunctionalTest extends BaseTestCase
     {
         $app = $this->createApplication();
 
-        $app->get('/foo', ['DI\Bridge\Silex\Test\Fixture\Controller', 'home']);
+        $app->get('/foo', [Fixture\Controller::class, 'home']);
 
         $response = $app->handle(Request::create('/foo'));
         $this->assertEquals('Hello world', $response->getContent());
@@ -57,7 +57,7 @@ class FunctionalTest extends BaseTestCase
     {
         $app = $this->createApplication();
 
-        $app->get('/{name}', ['DI\Bridge\Silex\Test\Fixture\Controller', 'hello']);
+        $app->get('/{name}', [Fixture\Controller::class, 'hello']);
 
         $response = $app->handle(Request::create('/john'));
         $this->assertEquals('Hello john', $response->getContent());
@@ -162,11 +162,11 @@ class FunctionalTest extends BaseTestCase
      */
     public function should_pass_the_own_application_based_on_type_hint()
     {
-        $app = new \DI\Bridge\Silex\Test\Fixture\Application(null, [
+        $app = new Fixture\Application(null, [
             'foo' => 'bar',
         ]);
 
-        $app->get('/', function (\DI\Bridge\Silex\Test\Fixture\Application $a) {
+        $app->get('/', function (Fixture\Application $a) {
             return $a['foo'];
         });
 
@@ -196,8 +196,8 @@ class FunctionalTest extends BaseTestCase
     {
         $app = $this->createApplication();
 
-        $app->get('/{user}', 'DI\Bridge\Silex\Test\Fixture\HelloController')
-            ->convert('user', 'DI\Bridge\Silex\Test\Fixture\InvokableConverter');
+        $app->get('/{user}', Fixture\HelloController::class)
+            ->convert('user', Fixture\InvokableConverter::class);
 
         $response = $app->handle(Request::create('/PHPDI'));
         $this->assertEquals('PHPDI', $response->getContent());
@@ -210,8 +210,8 @@ class FunctionalTest extends BaseTestCase
     {
         $app = $this->createApplication();
 
-        $app->get('/', 'DI\Bridge\Silex\Test\Fixture\InvokableController')
-            ->before('DI\Bridge\Silex\Test\Fixture\InvokableMiddleware');
+        $app->get('/', Fixture\InvokableController::class)
+            ->before(Fixture\InvokableMiddleware::class);
 
         $response = $app->handle(Request::create('/'));
         $this->assertEquals('Hello from middleware', $response->getContent());
@@ -224,7 +224,7 @@ class FunctionalTest extends BaseTestCase
     {
         $app = $this->createApplication();
 
-        $app->error('DI\Bridge\Silex\Test\Fixture\InvokableErrorListener');
+        $app->error(Fixture\InvokableErrorListener::class);
 
         $response = $app->handle(Request::create('/'));
         $this->assertEquals('Sad panda :(', $response->getContent());
@@ -237,9 +237,9 @@ class FunctionalTest extends BaseTestCase
     {
         $app = $this->createApplication();
 
-        $app->get('/', 'DI\Bridge\Silex\Test\Fixture\InvokableController');
+        $app->get('/', Fixture\InvokableController::class);
 
-        $app->view('DI\Bridge\Silex\Test\Fixture\InvokableViewListener');
+        $app->view(Fixture\InvokableViewListener::class);
 
         $response = $app->handle(Request::create('/'));
         $this->assertEquals('Hello world from mars', $response->getContent());

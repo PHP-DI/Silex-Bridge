@@ -2,8 +2,7 @@
 
 namespace DI\Bridge\Silex;
 
-use DI\Bridge\Silex\CallbackResolver;
-use Interop\Container\ContainerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 use Symfony\Component\Routing\RouteCollection;
 
@@ -36,14 +35,13 @@ class ConverterListener extends \Silex\EventListener\ConverterListener
         $route = $this->routes->get($request->attributes->get('_route'));
         if ($route && $converters = $route->getOption('_converters')) {
             foreach ($converters as $name => $callback) {
-
                 $value = $request->attributes->get($name);
                 $middleware = $this->callbackResolver->resolveCallback($callback);
                 $ret = $this->callbackInvoker->call($middleware, [
                     // parameter name
                     $name => $value,
                     // type hints
-                    'Symfony\Component\HttpFoundation\Request' => $request,
+                    Request::class => $request,
                     // Silex' default parameter order
                     0 => $value,
                     1 => $request,

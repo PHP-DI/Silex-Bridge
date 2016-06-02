@@ -2,6 +2,8 @@
 
 namespace DI\Bridge\Silex\Test;
 
+use Silex\Route;
+
 class ContainerTest extends BaseTestCase
 {
     /**
@@ -35,6 +37,6 @@ class ContainerTest extends BaseTestCase
         // Get from PHP-DI into Pimple
         $container->set('foo', \DI\get('route_class'));
 
-        $this->assertEquals('Silex\Route', $container->get('foo'));
+        $this->assertEquals(Route::class, $container->get('foo'));
     }
 }
