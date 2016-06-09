@@ -99,4 +99,35 @@ class MiddlewareTest extends BaseTestCase
         $response = $application->handle($request);
         $this->assertEquals('Hello john', $response->getContent());
     }
+
+    /**
+     * @test
+     */
+    public function should_allow_short_circuiting_the_controller_in_before_route_middleware()
+    {
+        $application = $this->createApplication();
+        $request = Request::create('/');
+
+        $shouldBeCalled = $this->createSpyCallback();
+        $shouldBeCalled->expects($this->once())->method('__invoke');
+
+        $shouldNotBeCalled = $this->createSpyCallback();
+        $shouldNotBeCalled->expects($this->never())->method('__invoke');
+
+        // route middleware
+        $application
+            ->get('/', $shouldNotBeCalled)
+            ->before(function () {
+                return new Response('Expected result');
+            })
+            ->before($shouldNotBeCalled)
+            ->after($shouldBeCalled);
+
+        $response = $application->handle($request);
+        $this->assertEquals('Expected result', $response->getContent());
+    }
+
+    private function createSpyCallback() {
+        return $this->getMockBuilder('stdClass')->setMethods(['__invoke'])->getMock();
+    }
 }
