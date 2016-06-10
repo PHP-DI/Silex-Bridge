@@ -2,10 +2,9 @@
 
 namespace DI\Bridge\Silex;
 
-use DI\Bridge\Silex\Application;
-use Symfony\Component\HttpKernel\Event\GetResponseEvent;
-use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
+use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 
 /**
  * Replacement for the Silex MiddlewareListener to allow arbitrary injection into middleware functions.
@@ -21,7 +20,7 @@ class MiddlewareListener extends \Silex\EventListener\MiddlewareListener
 
     /**
      * @param Application     $app             The application
-     * @param CallbackInvoker $callbackInvoker The invoker that handles injecting middlewares
+     * @param CallbackInvoker $callbackInvoker The invoker that handles injecting middleware
      */
     public function __construct(Application $app, CallbackInvoker $callbackInvoker)
     {
@@ -38,7 +37,6 @@ class MiddlewareListener extends \Silex\EventListener\MiddlewareListener
         }
 
         foreach ((array) $route->getOption('_before_middlewares') as $callback) {
-
             $middleware = $this->app['callback_resolver']->resolveCallback($callback);
             $ret = $this->callbackInvoker->call($middleware, [
                 // type hints
@@ -50,6 +48,8 @@ class MiddlewareListener extends \Silex\EventListener\MiddlewareListener
 
             if ($ret instanceof Response) {
                 $event->setResponse($ret);
+
+                return;
             } elseif (null !== $ret) {
                 throw new \RuntimeException(sprintf('A before middleware for route "%s" returned an invalid response value. Must return null or an instance of Response.', $routeName));
             }
@@ -66,7 +66,6 @@ class MiddlewareListener extends \Silex\EventListener\MiddlewareListener
         }
 
         foreach ((array) $route->getOption('_after_middlewares') as $callback) {
-
             $middleware = $this->app['callback_resolver']->resolveCallback($callback);
             $ret = $this->callbackInvoker->call($middleware, [
                 // type hints

@@ -4,11 +4,10 @@ namespace DI\Bridge\Silex;
 
 use DI\Bridge\Silex\Container\ContainerInteropProxy;
 use DI\Bridge\Silex\Controller\ControllerResolver;
-use DI\Bridge\Silex\MiddlewareListener;
-use DI\Bridge\Silex\ConverterListener;
 use Silex\EventListener\LocaleListener;
 use Silex\EventListener\StringToResponseListener;
 use Silex\LazyUrlMatcher;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -21,7 +20,6 @@ use DI\Container;
 use DI\ContainerBuilder;
 use Interop\Container\ContainerInterface;
 use Invoker\CallableResolver;
-use Invoker\Reflection\CallableReflection;
 use Invoker\ParameterResolver\AssociativeArrayResolver;
 use Invoker\ParameterResolver\Container\TypeHintContainerResolver;
 use Invoker\ParameterResolver\ResolverChain;
@@ -168,7 +166,6 @@ class Application extends \Silex\Application
             if ($ret instanceof Response) {
                 $event->setResponse($ret);
             }
-
         }, $priority);
     }
 
@@ -197,18 +194,16 @@ class Application extends \Silex\Application
             } elseif (null !== $ret) {
                 throw new \RuntimeException('An after middleware returned an invalid response value. Must return null or an instance of Response.');
             }
-
         }, $priority);
     }
 
     public function finish($callback, $priority = 0)
     {
         $this->on(KernelEvents::TERMINATE, function (PostResponseEvent $event) use ($callback) {
-
             $request = $event->getRequest();
             $response = $event->getResponse();
             $middleware = $this['callback_resolver']->resolveCallback($callback);
-            $ret = $this->callbackInvoker->call($middleware, [
+            $this->callbackInvoker->call($middleware, [
                 // type hints
                 'Symfony\Component\HttpFoundation\Request' => $request,
                 'Symfony\Component\HttpFoundation\Response' => $response,
@@ -217,13 +212,6 @@ class Application extends \Silex\Application
                 1 => $response,
                 2 => $this,
             ]);
-
-            if ($ret instanceof Response) {
-                $event->setResponse($ret);
-            } elseif (null !== $ret) {
-                throw new \RuntimeException('An after middleware returned an invalid response value. Must return null or an instance of Response.');
-            }
-
         }, $priority);
     }
 }
