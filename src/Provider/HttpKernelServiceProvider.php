@@ -6,6 +6,7 @@ use DI\Bridge\Silex\CallbackInvoker;
 use DI\Bridge\Silex\CallbackResolver;
 use DI\Bridge\Silex\Controller\ControllerResolver;
 use DI\Bridge\Silex\ConverterListener;
+use DI\Bridge\Silex\EventDispatcher\EventDispatcher;
 use DI\Bridge\Silex\MiddlewareListener;
 use Interop\Container\ContainerInterface;
 use Invoker\ParameterResolver\AssociativeArrayResolver;
@@ -60,6 +61,11 @@ class HttpKernelServiceProvider implements ServiceProviderInterface, EventListen
                 $app,
                 $app['phpdi.callable_resolver']
             );
+        };
+
+        // Override the event dispatcher with ours.
+        $app['dispatcher'] = function () {
+            return new EventDispatcher($this->callbackInvoker);
         };
     }
 

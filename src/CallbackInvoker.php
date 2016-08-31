@@ -28,6 +28,6 @@ class CallbackInvoker extends Invoker
             new TypeHintResolver,
             new TypeHintContainerResolver($container),
             new NumericArrayResolver,
-        ]));
+        ]), $container);
     }
 }
