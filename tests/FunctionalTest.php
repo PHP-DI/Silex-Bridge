@@ -81,6 +81,21 @@ class FunctionalTest extends BaseTestCase
     /**
      * @test
      */
+    public function should_resolve_default_parameter()
+    {
+        $app = $this->createApplication();
+
+        $app->get('/', function ($optional = null) {
+            return 'Hello';
+        });
+
+        $response = $app->handle(Request::create('/?name=john'));
+        $this->assertEquals('Hello', $response->getContent());
+    }
+
+    /**
+     * @test
+     */
     public function should_pass_phpdi_service_based_on_type_hint()
     {
         $builder = new ContainerBuilder;
