@@ -21,6 +21,7 @@ use DI\ContainerBuilder;
 use Interop\Container\ContainerInterface;
 use Invoker\CallableResolver;
 use Invoker\ParameterResolver\AssociativeArrayResolver;
+use Invoker\ParameterResolver\DefaultValueResolver;
 use Invoker\ParameterResolver\Container\TypeHintContainerResolver;
 use Invoker\ParameterResolver\ResolverChain;
 
@@ -77,6 +78,7 @@ class Application extends \Silex\Application
                 new ResolverChain([
                     new AssociativeArrayResolver,
                     new TypeHintContainerResolver($this->containerInteropProxy),
+                    new DefaultValueResolver,
                 ])
             );
         });
