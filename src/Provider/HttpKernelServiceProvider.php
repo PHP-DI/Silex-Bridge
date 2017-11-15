@@ -4,6 +4,7 @@ namespace DI\Bridge\Silex\Provider;
 
 use DI\Bridge\Silex\CallbackInvoker;
 use DI\Bridge\Silex\CallbackResolver;
+use DI\Bridge\Silex\Controller\ArgumentResolver;
 use DI\Bridge\Silex\Controller\ControllerResolver;
 use DI\Bridge\Silex\ConverterListener;
 use DI\Bridge\Silex\MiddlewareListener;
@@ -46,11 +47,7 @@ class HttpKernelServiceProvider implements ServiceProviderInterface, EventListen
         // Override the controller resolver with ours.
         $app['resolver'] = function ($app) {
             return new ControllerResolver(
-                $app['phpdi.callable_resolver'],
-                new ResolverChain([
-                    new AssociativeArrayResolver,
-                    new TypeHintContainerResolver($this->container),
-                ])
+                $app['phpdi.callable_resolver']
             );
         };
 
@@ -59,6 +56,16 @@ class HttpKernelServiceProvider implements ServiceProviderInterface, EventListen
             return new CallbackResolver(
                 $app,
                 $app['phpdi.callable_resolver']
+            );
+        };
+
+        // Override the argument resolver with ours.
+        $app['argument_resolver'] = function () {
+            return new ArgumentResolver(
+                new ResolverChain([
+                    new AssociativeArrayResolver,
+                    new TypeHintContainerResolver($this->container),
+                ])
             );
         };
 

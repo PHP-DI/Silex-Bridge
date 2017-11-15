@@ -1,15 +1,18 @@
 <?php
 
+namespace DI\Bridge\Silex\Test\Provider;
+
 use DI\Bridge\Silex\Application;
 use DI\Bridge\Silex\CallbackInvoker;
 use DI\Bridge\Silex\CallbackResolver;
+use DI\Bridge\Silex\Controller\ArgumentResolver;
 use DI\Bridge\Silex\Controller\ControllerResolver;
 use DI\Bridge\Silex\Provider\HttpKernelServiceProvider;
 use Interop\Container\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpKernel\Controller\ArgumentResolverInterface;
 
-class HttpKernelServiceProviderTest extends PHPUnit_Framework_TestCase
+class HttpKernelServiceProviderTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var ContainerInterface
@@ -51,16 +54,20 @@ class HttpKernelServiceProviderTest extends PHPUnit_Framework_TestCase
 
     public function test_register_application_have_request_service()
     {
-        $this->application['request_stack'] = function () {
-            $requestStack = new RequestStack();
-            $requestStack->push(Request::createFromGlobals());
-
-            return $requestStack;
-        };
-
+        // mock request
+        $this->application['request_stack']->push(Request::createFromGlobals());
         $this->httpKernelProvider->register($this->application);
 
         $this->assertArrayHasKey('request', $this->application);
         $this->assertInstanceOf(Request::class, $this->application['request']);
+    }
+
+    public function test_register_application_have_bridge_argument_resolver_service()
+    {
+        $this->httpKernelProvider->register($this->application);
+
+        $this->assertArrayHasKey('argument_resolver', $this->application);
+        $this->assertInstanceOf(ArgumentResolverInterface::class, $this->application['argument_resolver']);
+        $this->assertInstanceOf(ArgumentResolver::class, $this->application['argument_resolver']);
     }
 }
