@@ -5,13 +5,12 @@ namespace DI\Bridge\Silex\Controller;
 use Invoker\CallableResolver;
 use Invoker\Exception\NotCallableException;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Controller\ArgumentResolverInterface;
 use Symfony\Component\HttpKernel\Controller\ControllerResolverInterface;
 
 /**
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-class ControllerResolver implements ControllerResolverInterface, ArgumentResolverInterface
+class ControllerResolver implements ControllerResolverInterface
 {
     /**
      * @var CallableResolver
