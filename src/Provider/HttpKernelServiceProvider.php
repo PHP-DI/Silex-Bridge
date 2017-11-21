@@ -16,6 +16,7 @@ use Pimple\ServiceProviderInterface;
 use Silex\Api\EventListenerProviderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpKernel\Kernel;
 
 /**
  * @author Jacob Dreesen <jacob.dreesen@gmail.com>
@@ -47,7 +48,11 @@ class HttpKernelServiceProvider implements ServiceProviderInterface, EventListen
         // Override the controller resolver with ours.
         $app['resolver'] = function ($app) {
             return new ControllerResolver(
-                $app['phpdi.callable_resolver']
+                $app['phpdi.callable_resolver'],
+                new ResolverChain([
+                    new AssociativeArrayResolver,
+                    new TypeHintContainerResolver($this->container),
+                ])
             );
         };
 
@@ -60,14 +65,16 @@ class HttpKernelServiceProvider implements ServiceProviderInterface, EventListen
         };
 
         // Override the argument resolver with ours.
-        $app['argument_resolver'] = function () {
-            return new ArgumentResolver(
-                new ResolverChain([
-                    new AssociativeArrayResolver,
-                    new TypeHintContainerResolver($this->container),
-                ])
-            );
-        };
+        if (Kernel::VERSION_ID >= 30100) {
+            $app['argument_resolver'] = function () {
+                return new ArgumentResolver(
+                    new ResolverChain([
+                        new AssociativeArrayResolver,
+                        new TypeHintContainerResolver($this->container),
+                    ])
+                );
+            };
+        }
 
         // add request to ensure that DI have access to correct request instance from application
         $app['request'] = $app->factory(function ($app) {
