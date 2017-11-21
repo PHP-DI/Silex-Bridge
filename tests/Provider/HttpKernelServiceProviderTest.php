@@ -11,6 +11,7 @@ use DI\Bridge\Silex\Provider\HttpKernelServiceProvider;
 use Interop\Container\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolverInterface;
+use Symfony\Component\HttpKernel\Kernel;
 
 class HttpKernelServiceProviderTest extends \PHPUnit_Framework_TestCase
 {
@@ -67,7 +68,9 @@ class HttpKernelServiceProviderTest extends \PHPUnit_Framework_TestCase
         $this->httpKernelProvider->register($this->application);
 
         $this->assertArrayHasKey('argument_resolver', $this->application);
-        $this->assertInstanceOf(ArgumentResolverInterface::class, $this->application['argument_resolver']);
-        $this->assertInstanceOf(ArgumentResolver::class, $this->application['argument_resolver']);
+        if (Kernel::VERSION_ID >= 30100) {
+            $this->assertInstanceOf(ArgumentResolverInterface::class, $this->application['argument_resolver']);
+            $this->assertInstanceOf(ArgumentResolver::class, $this->application['argument_resolver']);
+        }
     }
 }
