@@ -67,8 +67,8 @@ class HttpKernelServiceProviderTest extends \PHPUnit_Framework_TestCase
     {
         $this->httpKernelProvider->register($this->application);
 
-        $this->assertArrayHasKey('argument_resolver', $this->application);
         if (Kernel::VERSION_ID >= 30100) {
+            $this->assertArrayHasKey('argument_resolver', $this->application);
             $this->assertInstanceOf(ArgumentResolverInterface::class, $this->application['argument_resolver']);
             $this->assertInstanceOf(ArgumentResolver::class, $this->application['argument_resolver']);
         }
