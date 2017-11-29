@@ -53,16 +53,6 @@ class HttpKernelServiceProviderTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(CallbackResolver::class, $this->application['callback_resolver']);
     }
 
-    public function test_register_application_have_request_service()
-    {
-        // mock request
-        $this->application['request_stack']->push(Request::createFromGlobals());
-        $this->httpKernelProvider->register($this->application);
-
-        $this->assertArrayHasKey('request', $this->application);
-        $this->assertInstanceOf(Request::class, $this->application['request']);
-    }
-
     public function test_register_application_have_bridge_argument_resolver_service()
     {
         $this->httpKernelProvider->register($this->application);

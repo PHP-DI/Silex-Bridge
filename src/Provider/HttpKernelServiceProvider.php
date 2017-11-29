@@ -75,11 +75,6 @@ class HttpKernelServiceProvider implements ServiceProviderInterface, EventListen
                 );
             };
         }
-
-        // add request to ensure that DI have access to correct request instance from application
-        $app['request'] = $app->factory(function ($app) {
-            return $app['request_stack']->getCurrentRequest();
-        });
     }
 
     public function subscribe(\Pimple\Container $app, EventDispatcherInterface $dispatcher)
