@@ -4,6 +4,7 @@ namespace DI\Bridge\Silex\Provider;
 
 use DI\Bridge\Silex\CallbackInvoker;
 use DI\Bridge\Silex\CallbackResolver;
+use DI\Bridge\Silex\Controller\ArgumentResolver;
 use DI\Bridge\Silex\Controller\ControllerResolver;
 use DI\Bridge\Silex\ConverterListener;
 use DI\Bridge\Silex\MiddlewareListener;
@@ -15,6 +16,7 @@ use Pimple\ServiceProviderInterface;
 use Silex\Api\EventListenerProviderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpKernel\Kernel;
 
 /**
  * @author Jacob Dreesen <jacob.dreesen@gmail.com>
@@ -61,6 +63,18 @@ class HttpKernelServiceProvider implements ServiceProviderInterface, EventListen
                 $app['phpdi.callable_resolver']
             );
         };
+
+        // Override the argument resolver with ours.
+        if (Kernel::VERSION_ID >= 30100) {
+            $app['argument_resolver'] = function () {
+                return new ArgumentResolver(
+                    new ResolverChain([
+                        new AssociativeArrayResolver,
+                        new TypeHintContainerResolver($this->container),
+                    ])
+                );
+            };
+        }
     }
 
     public function subscribe(\Pimple\Container $app, EventDispatcherInterface $dispatcher)
